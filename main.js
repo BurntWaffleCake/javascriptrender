@@ -1,5 +1,6 @@
 import { Vector3 } from "./Vector3.js";
 import { Quaternion } from "./Quaternion.js";
+import { Cube } from "./Model.js";
 
 const source = document.getElementById("source");
 const ctx = source.getContext("2d");
@@ -27,6 +28,9 @@ function init() {
 }
 
 init();
+
+let modelCube = new Cube(new Vector3(0, 0, 500));
+console.log(modelCube);
 
 function clearBackground(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -57,7 +61,31 @@ let aF = 1 / Math.tan((fov * Math.PI) / 180 / 2);
 
 function render(ctx, dt) {
   clearBackground(ctx);
+  renderWorldAxis(ctx, 100);
   renderCube(ctx);
+}
+
+function renderWorldAxis(ctx, mag) {
+  let origin = toScreenSpace(new Vector3(0, 0, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
+  let x = toScreenSpace(new Vector3(mag, 0, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
+  let y = toScreenSpace(new Vector3(0, mag, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
+  let z = toScreenSpace(new Vector3(0, 0, mag).rotateEuler(rot.x, rot.y, rot.z).add(pos));
+
+  ctx.beginPath();
+  ctx.strokeStyle = "rgb(255,0,0)";
+  ctx.moveTo(origin.x, origin.y);
+  ctx.lineTo(x.x, x.y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.strokeStyle = "rgb(0,255,0)";
+  ctx.moveTo(origin.x, origin.y);
+  ctx.lineTo(y.x, y.y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.strokeStyle = "rgb(0,0,255)";
+  ctx.moveTo(origin.x, origin.y);
+  ctx.lineTo(z.x, z.y);
+  ctx.stroke();
 }
 
 let pos = new Vector3(0, 0, 500);
@@ -77,6 +105,26 @@ let cube = [
   new Vector3(-s, -s, -s),
 ];
 
+function toOrthScreenSpace(vector) {
+  let x = (2 * vector.x + pos.x) / (right - left) - (right + left) / (right - left);
+  let y = (2 * vector.y + pos.y) / (top - bottom) - (top + bottom) / (top - aspect);
+
+  return {
+    x: x * ctx.canvas.width + ctx.canvas.width / 2,
+    y: -y * ctx.canvas.height + ctx.canvas.height / 2, //-y as coordinate system is negative
+  };
+}
+
+function toScreenSpace(vector) {
+  let x = ((vector.x * 1) / aspect) * aF;
+  let y = vector.y * aF;
+
+  return {
+    x: (x / vector.z) * ctx.canvas.width + ctx.canvas.width / 2,
+    y: -(y / vector.z) * ctx.canvas.height + ctx.canvas.height / 2, //-y as coordinate system is negative
+  };
+}
+
 function renderCube(ctx) {
   let worldCube = [];
   for (let vertex of cube) {
@@ -84,25 +132,19 @@ function renderCube(ctx) {
   }
 
   let screenCube = [];
+
   for (let vertex of worldCube) {
     if (orthView) {
-      let x = (2 * vertex.x + pos.x) / (right - left) - (right + left) / (right - left);
-      let y = (2 * vertex.y + pos.y) / (top - bottom) - (top + bottom) / (top - aspect);
-
-      screenCube.push({
-        x: x * ctx.canvas.width + ctx.canvas.width / 2,
-        y: y * ctx.canvas.height + ctx.canvas.height / 2,
-      });
+      screenCube.push(toOrthScreenSpace(vertex));
     } else {
-      let x = ((vertex.x * 1) / aspect) * aF;
-      let y = vertex.y * aF;
-
-      screenCube.push({
-        x: (x / vertex.z) * ctx.canvas.width + ctx.canvas.width / 2,
-        y: (y / vertex.z) * ctx.canvas.height + ctx.canvas.height / 2,
-      });
+      screenCube.push(toScreenSpace(vertex));
     }
   }
+
+  screenCube.forEach((element, index) => {
+    ctx.font = "16px Arial";
+    ctx.fillText(String(index), element.x, element.y);
+  });
 
   ctx.beginPath();
   ctx.strokeStyle = "rgb(255, 0, 0)";
