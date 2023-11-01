@@ -35,6 +35,9 @@ export class Vector3 {
   dot(vector) {
     return this.x * vector.x + this.y * vector.y + this.z * vector.z;
   }
+  scale(num) {
+    return new Vector3(this.x * num, this.y * num, this.z * num);
+  }
   cross(vector) {
     return new Vector3(
       this.y * vector.z - this.z * vector.y,
@@ -47,8 +50,6 @@ export class Vector3 {
     let x = -(xd * Math.PI) / 180;
     let y = -(yd * Math.PI) / 180;
     let z = -(zd * Math.PI) / 180;
-
-    console.log(x, y, z);
 
     let zR = new Vector3(
       this.x,

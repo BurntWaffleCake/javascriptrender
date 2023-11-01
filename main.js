@@ -12,14 +12,40 @@ function loop(time) {
   t = time / 1000;
 
   if (autoRotate) {
-    rot.x += dt * rotSpeed;
-    rot.y += dt * rotSpeed;
-    rot.z += dt * rotSpeed;
+    modelCube.rot.x += dt * rotSpeed;
+    modelCube.rot.y += dt * rotSpeed;
+    modelCube.rot.z += dt * rotSpeed;
   }
+
+  handleKeyboardInput(dt);
+
+  // camera.pos.x = Math.sin(t) * 100;
+  // camera.rot.y = Math.sin(t) * 10;
 
   updateCanvasSize(ctx);
   render(ctx, dt);
   window.requestAnimationFrame(loop);
+}
+
+function handleKeyboardInput(dt) {
+  if (wKeyDown) {
+    camera.pos.z += 100 * dt;
+  }
+  if (aKeyDown) {
+    camera.pos.x -= 100 * dt;
+  }
+  if (sKeyDown) {
+    camera.pos.z -= 100 * dt;
+  }
+  if (dKeyDown) {
+    camera.pos.x += 100 * dt;
+  }
+  if (qKeyDown) {
+    camera.pos.y -= 100 * dt;
+  }
+  if (eKeyDown) {
+    camera.pos.y += 100 * dt;
+  }
 }
 
 function init() {
@@ -31,9 +57,14 @@ function init() {
 init();
 
 let modelCube = new Cube(new Vector3(0, 0, 0));
-let camera = new Camera(ctx, new Vector3(0, 0, -500), undefined, 70, [
-  modelCube,
-]);
+let models = [modelCube];
+
+for (let i = 0; i < 10; i++) {
+  models.push(new Cube(new Vector3(100 * i + 1, 100 * i + 1, 0)));
+}
+console.log(models);
+
+let camera = new Camera(ctx, new Vector3(0, 0, -500), undefined, 70, models);
 console.log(modelCube);
 
 function clearBackground(ctx) {
@@ -41,8 +72,8 @@ function clearBackground(ctx) {
 }
 
 function updateCanvasSize(ctx) {
-  ctx.canvas.width = source.clientWidth;
-  ctx.canvas.height = source.clientHeight;
+  ctx.canvas.width = source.clientWidth / 2;
+  ctx.canvas.height = source.clientHeight / 2;
 
   // left = -ctx.canvas.width / 2;
   // right = ctx.canvas.width / 2;
@@ -143,11 +174,11 @@ const fovInput = document.getElementById("fovInput");
 var fov = 70;
 fovSlider.oninput = function () {
   fovInput.value = fovSlider.value;
-  fov = fovSlider.value;
+  camera.setFov(fovSlider.value);
 };
 fovInput.oninput = function () {
   fovSlider.value = fovInput.value;
-  fov = fovInput.value;
+  camera.setFov(fovInput.value);
 };
 
 const orthInput = document.getElementById("orthBox");
@@ -185,33 +216,33 @@ function disableAutoRotate() {
 
 rotXSlider.oninput = function () {
   rotXInput.value = rotXSlider.value;
-  rot.x = Number(rotXSlider.value);
+  camera.rot.x = Number(rotXSlider.value);
   disableAutoRotate();
 };
 rotYSlider.oninput = function () {
   rotYInput.value = rotYSlider.value;
-  rot.y = Number(rotYSlider.value);
+  camera.rot.y = Number(rotYSlider.value);
   disableAutoRotate();
 };
 rotZSlider.oninput = function () {
   rotZInput.value = rotZSlider.value;
-  rot.z = Number(rotZSlider.value);
+  camera.rot.z = Number(rotZSlider.value);
   disableAutoRotate();
 };
 
 rotXInput.oninput = function () {
   rotXSlider.value = rotXInput.value;
-  rot.x = Number(rotXInput.value);
+  camera.rot.x = Number(rotXInput.value);
   disableAutoRotate();
 };
 rotYInput.oninput = function () {
   rotYSlider.value = rotYInput.value;
-  rot.y = Number(rotYSlider.value);
+  camera.rot.y = Number(rotYSlider.value);
   disableAutoRotate();
 };
 rotZInput.oninput = function () {
   rotZSlider.value = rotZInput.value;
-  rot.z = Number(rotZInput.value);
+  camera.rot.z = Number(rotZInput.value);
   disableAutoRotate();
 };
 
@@ -222,5 +253,43 @@ rotReset.onclick = function () {
   rotXSlider.value = 0;
   rotYSlider.value = 0;
   rotZSlider.value = 0;
-  rot.set(0, 0, 0);
+  camera.rot.set(0, 0, 0);
+};
+
+var wKeyDown = false;
+var aKeyDown = false;
+var sKeyDown = false;
+var dKeyDown = false;
+var qKeyDown = false;
+var eKeyDown = false;
+document.onkeydown = function (event) {
+  if (event.key == "w") {
+    wKeyDown = true;
+  } else if (event.key == "a") {
+    aKeyDown = true;
+  } else if (event.key == "s") {
+    sKeyDown = true;
+  } else if (event.key == "d") {
+    dKeyDown = true;
+  } else if (event.key == "q") {
+    qKeyDown = true;
+  } else if (event.key == "e") {
+    eKeyDown = true;
+  }
+};
+
+document.onkeyup = function (event) {
+  if (event.key == "w") {
+    wKeyDown = false;
+  } else if (event.key == "a") {
+    aKeyDown = false;
+  } else if (event.key == "s") {
+    sKeyDown = false;
+  } else if (event.key == "d") {
+    dKeyDown = false;
+  } else if (event.key == "q") {
+    qKeyDown = false;
+  } else if (event.key == "e") {
+    eKeyDown = false;
+  }
 };

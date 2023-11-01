@@ -15,7 +15,8 @@ export class Model {
   }
 
   toWorldSpace(vector) {
-    return vector.rotateEuler(this.rot).add(this.pos);
+    // console.log(vector.rotateEuler(this.rot), this.pos);
+    return vector.rotateEuler(this.rot.x, this.rot.y, this.rot.z).add(this.pos);
   }
 }
 
@@ -34,25 +35,25 @@ export class Cube extends Model {
     ];
     let triangles = [
       //front
-      new Vector3(0, 1, 2),
-      new Vector3(2, 3, 0),
+      new Vector3(2, 1, 0),
+      new Vector3(0, 3, 2),
 
       //top
       new Vector3(0, 1, 5),
       new Vector3(5, 4, 0),
 
-      new Vector3(1, 5, 6),
-      new Vector3(6, 2, 1),
+      new Vector3(6, 5, 1),
+      new Vector3(1, 2, 6),
 
-      new Vector3(3, 2, 6),
-      new Vector3(6, 7, 3),
+      new Vector3(6, 2, 3),
+      new Vector3(3, 7, 6),
 
       new Vector3(0, 4, 7),
       new Vector3(7, 3, 0),
 
       //back
-      new Vector3(6, 5, 4),
-      new Vector3(4, 7, 6),
+      new Vector3(4, 5, 6),
+      new Vector3(6, 7, 4),
     ];
     super(pos, rot, vertices, triangles);
   }
