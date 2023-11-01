@@ -1,6 +1,7 @@
 import { Vector3 } from "./Vector3.js";
 import { Quaternion } from "./Quaternion.js";
 import { Cube } from "./Model.js";
+import { Camera } from "./Camera.js";
 
 const source = document.getElementById("source");
 const ctx = source.getContext("2d");
@@ -29,7 +30,10 @@ function init() {
 
 init();
 
-let modelCube = new Cube(new Vector3(0, 0, 500));
+let modelCube = new Cube(new Vector3(0, 0, 0));
+let camera = new Camera(ctx, new Vector3(0, 0, -500), undefined, 70, [
+  modelCube,
+]);
 console.log(modelCube);
 
 function clearBackground(ctx) {
@@ -40,90 +44,52 @@ function updateCanvasSize(ctx) {
   ctx.canvas.width = source.clientWidth;
   ctx.canvas.height = source.clientHeight;
 
-  left = -ctx.canvas.width / 2;
-  right = ctx.canvas.width / 2;
-  top = ctx.canvas.height / 2;
-  bottom = -ctx.canvas.height / 2;
-  aspect = ctx.canvas.width / ctx.canvas.height;
-  near = 100;
-  far = 1000;
-  aF = 1 / Math.tan((fov * Math.PI) / 180 / 2);
+  // left = -ctx.canvas.width / 2;
+  // right = ctx.canvas.width / 2;
+  // top = ctx.canvas.height / 2;
+  // bottom = -ctx.canvas.height / 2;
+  // aspect = ctx.canvas.width / ctx.canvas.height;
+  // near = 100;
+  // far = 1000;
+  // aF = 1 / Math.tan((fov * Math.PI) / 180 / 2);
 }
 
-let left = -ctx.canvas.width / 2;
-let right = ctx.canvas.width / 2;
-let top = ctx.canvas.height / 2;
-let bottom = -ctx.canvas.height / 2;
-let aspect = ctx.canvas.width / ctx.canvas.height;
-let near = 100;
-let far = 1000;
-let aF = 1 / Math.tan((fov * Math.PI) / 180 / 2);
+// let left = -ctx.canvas.width / 2;
+// let right = ctx.canvas.width / 2;
+// let top = ctx.canvas.height / 2;
+// let bottom = -ctx.canvas.height / 2;
+// let aspect = ctx.canvas.width / ctx.canvas.height;
+// let near = 100;
+// let far = 1000;
+// let aF = 1 / Math.tan((fov * Math.PI) / 180 / 2);
 
 function render(ctx, dt) {
   clearBackground(ctx);
-  renderWorldAxis(ctx, 100);
-  renderCube(ctx);
+  camera.render();
 }
 
-function renderWorldAxis(ctx, mag) {
-  let origin = toScreenSpace(new Vector3(0, 0, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
-  let x = toScreenSpace(new Vector3(mag, 0, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
-  let y = toScreenSpace(new Vector3(0, mag, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
-  let z = toScreenSpace(new Vector3(0, 0, mag).rotateEuler(rot.x, rot.y, rot.z).add(pos));
+// function renderWorldAxis(ctx, mag) {
+//   let origin = toScreenSpace(new Vector3(0, 0, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
+//   let x = toScreenSpace(new Vector3(mag, 0, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
+//   let y = toScreenSpace(new Vector3(0, mag, 0).rotateEuler(rot.x, rot.y, rot.z).add(pos));
+//   let z = toScreenSpace(new Vector3(0, 0, mag).rotateEuler(rot.x, rot.y, rot.z).add(pos));
 
-  ctx.beginPath();
-  ctx.strokeStyle = "rgb(255,0,0)";
-  ctx.moveTo(origin.x, origin.y);
-  ctx.lineTo(x.x, x.y);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.strokeStyle = "rgb(0,255,0)";
-  ctx.moveTo(origin.x, origin.y);
-  ctx.lineTo(y.x, y.y);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.strokeStyle = "rgb(0,0,255)";
-  ctx.moveTo(origin.x, origin.y);
-  ctx.lineTo(z.x, z.y);
-  ctx.stroke();
-}
-
-let pos = new Vector3(0, 0, 500);
-
-let rot = new Vector3(0, 0, 0);
-
-let s = 50;
-let cube = [
-  new Vector3(-s, s, s),
-  new Vector3(s, s, s),
-  new Vector3(s, -s, s),
-  new Vector3(-s, -s, s),
-
-  new Vector3(-s, s, -s),
-  new Vector3(s, s, -s),
-  new Vector3(s, -s, -s),
-  new Vector3(-s, -s, -s),
-];
-
-function toOrthScreenSpace(vector) {
-  let x = (2 * vector.x + pos.x) / (right - left) - (right + left) / (right - left);
-  let y = (2 * vector.y + pos.y) / (top - bottom) - (top + bottom) / (top - aspect);
-
-  return {
-    x: x * ctx.canvas.width + ctx.canvas.width / 2,
-    y: -y * ctx.canvas.height + ctx.canvas.height / 2, //-y as coordinate system is negative
-  };
-}
-
-function toScreenSpace(vector) {
-  let x = ((vector.x * 1) / aspect) * aF;
-  let y = vector.y * aF;
-
-  return {
-    x: (x / vector.z) * ctx.canvas.width + ctx.canvas.width / 2,
-    y: -(y / vector.z) * ctx.canvas.height + ctx.canvas.height / 2, //-y as coordinate system is negative
-  };
-}
+//   ctx.beginPath();
+//   ctx.strokeStyle = "rgb(255,0,0)";
+//   ctx.moveTo(origin.x, origin.y);
+//   ctx.lineTo(x.x, x.y);
+//   ctx.stroke();
+//   ctx.beginPath();
+//   ctx.strokeStyle = "rgb(0,255,0)";
+//   ctx.moveTo(origin.x, origin.y);
+//   ctx.lineTo(y.x, y.y);
+//   ctx.stroke();
+//   ctx.beginPath();
+//   ctx.strokeStyle = "rgb(0,0,255)";
+//   ctx.moveTo(origin.x, origin.y);
+//   ctx.lineTo(z.x, z.y);
+//   ctx.stroke();
+// }
 
 function renderCube(ctx) {
   let worldCube = [];

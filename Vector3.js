@@ -48,6 +48,8 @@ export class Vector3 {
     let y = -(yd * Math.PI) / 180;
     let z = -(zd * Math.PI) / 180;
 
+    console.log(x, y, z);
+
     let zR = new Vector3(
       this.x,
       this.y * Math.cos(z) - this.z * Math.sin(z),

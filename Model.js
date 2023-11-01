@@ -1,7 +1,12 @@
 import { Vector3 } from "./Vector3.js";
 
 export class Model {
-  constructor(pos = new Vector3(0, 0, 0), rot = new Vector3(0, 0, 0), vertices, triangles) {
+  constructor(
+    pos = new Vector3(0, 0, 0),
+    rot = new Vector3(0, 0, 0),
+    vertices,
+    triangles
+  ) {
     this.pos = pos;
     this.rot = rot;
 
@@ -15,7 +20,7 @@ export class Model {
 }
 
 export class Cube extends Model {
-  constructor(pos = new Vector3(0, 0, 0), rot = new Vector3(0, 0, 0), s = 10) {
+  constructor(pos = new Vector3(0, 0, 0), rot = new Vector3(0, 0, 0), s = 50) {
     let vertices = [
       new Vector3(-s, s, s), //ftl
       new Vector3(s, s, s), //ftr
