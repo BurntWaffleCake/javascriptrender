@@ -5,18 +5,22 @@ export class Model {
     pos = new Vector3(0, 0, 0),
     rot = new Vector3(0, 0, 0),
     vertices,
-    triangles
+    triangles,
+    scale = 1
   ) {
     this.pos = pos;
     this.rot = rot;
-
+    this.scale = scale;
     this.vertices = vertices;
     this.triangles = triangles;
   }
 
   toWorldSpace(vector) {
     // console.log(vector.rotateEuler(this.rot), this.pos);
-    return vector.rotateEuler(this.rot.x, this.rot.y, this.rot.z).add(this.pos);
+    return vector
+      .scale(this.scale)
+      .rotateEuler(this.rot.x, this.rot.y, this.rot.z)
+      .add(this.pos);
   }
 }
 

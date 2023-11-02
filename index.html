@@ -55,7 +55,7 @@
       #angleXSlider,
       #angleYSlider,
       #angleZSlider {
-        width: 20rem;
+        width: 15rem;
       }
 
       #angleXInput,
@@ -76,8 +76,22 @@
 
       <div>
         <label for="fovSlider">FOV:</label>
-        <input type="range" min="0" max="180" value="70" id="fovSlider" autocomplete="off" />
-        <input type="number" min="0" max="180" value="70" id="fovInput" autocomplete="off" />
+        <input
+          type="range"
+          min="0"
+          max="180"
+          value="70"
+          id="fovSlider"
+          autocomplete="off"
+        />
+        <input
+          type="number"
+          min="0"
+          max="180"
+          value="70"
+          id="fovInput"
+          autocomplete="off"
+        />
       </div>
 
       <hr />
@@ -98,19 +112,63 @@
           </div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 0">
-          <input type="range" min="-180" max="180" value="0" id="angleXSlider" autocomplete="off" />
-          <input type="range" min="-180" max="180" value="0" id="angleYSlider" autocomplete="off" />
-          <input type="range" min="-180" max="180" value="0" id="angleZSlider" autocomplete="off" />
+          <input
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+            id="angleXSlider"
+            autocomplete="off"
+          />
+          <input
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+            id="angleYSlider"
+            autocomplete="off"
+          />
+          <input
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+            id="angleZSlider"
+            autocomplete="off"
+          />
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 0">
-          <input type="number" min="-180" max="180" value="0" id="angleXInput" autocomplete="off" />
-          <input type="number" min="-180" max="180" value="0" id="angleYInput" autocomplete="off" />
-          <input type="number" min="-180" max="180" value="0" id="angleZInput" autocomplete="off" />
+          <input
+            type="number"
+            min="-180"
+            max="180"
+            value="0"
+            id="angleXInput"
+            autocomplete="off"
+          />
+          <input
+            type="number"
+            min="-180"
+            max="180"
+            value="0"
+            id="angleYInput"
+            autocomplete="off"
+          />
+          <input
+            type="number"
+            min="-180"
+            max="180"
+            value="0"
+            id="angleZInput"
+            autocomplete="off"
+          />
         </div>
       </div>
-    </div>
 
+      <div>
+        <textarea style="max-width: 100%; max-height: 10rem"></textarea>
+      </div>
     <canvas id="source"></canvas>
     <script type="module" src="main.js" async defer></script>
   </body>

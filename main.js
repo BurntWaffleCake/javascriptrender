@@ -57,42 +57,67 @@ function init() {
 init();
 
 let modelCube = new Cube(new Vector3(0, 0, 0));
-let models = [modelCube];
-
-for (let i = 0; i < 10; i++) {
-  models.push(new Cube(new Vector3(100 * i + 1, 100 * i + 1, 0)));
-}
-console.log(models);
+let models = [];
 
 let camera = new Camera(ctx, new Vector3(0, 0, -500), undefined, 70, models);
 console.log(modelCube);
+camera.readOBJ(
+  `# Blender 3.3.1
+  # www.blender.org
+  mtllib cube.mtl
+  o Cube
+  v -1.000000 -1.000000 1.000000
+  v -1.000000 1.000000 1.000000
+  v -1.000000 -1.000000 -1.000000
+  v -1.000000 1.000000 -1.000000
+  v 1.000000 -1.000000 1.000000
+  v 1.000000 1.000000 1.000000
+  v 1.000000 -1.000000 -1.000000
+  v 1.000000 1.000000 -1.000000
+  vn -1.0000 -0.0000 -0.0000
+  vn -0.0000 -0.0000 -1.0000
+  vn 1.0000 -0.0000 -0.0000
+  vn -0.0000 -0.0000 1.0000
+  vn -0.0000 -1.0000 -0.0000
+  vn -0.0000 1.0000 -0.0000
+  vt 0.375000 0.000000
+  vt 0.375000 1.000000
+  vt 0.125000 0.750000
+  vt 0.625000 0.000000
+  vt 0.625000 1.000000
+  vt 0.875000 0.750000
+  vt 0.125000 0.500000
+  vt 0.375000 0.250000
+  vt 0.625000 0.250000
+  vt 0.875000 0.500000
+  vt 0.375000 0.750000
+  vt 0.625000 0.750000
+  vt 0.375000 0.500000
+  vt 0.625000 0.500000
+  s 0
+  f 2/4/1 3/8/1 1/1/1
+  f 4/9/2 7/13/2 3/8/2
+  f 8/14/3 5/11/3 7/13/3
+  f 6/12/4 1/2/4 5/11/4
+  f 7/13/5 1/3/5 3/7/5
+  f 4/10/6 6/12/6 8/14/6
+  f 2/4/1 4/9/1 3/8/1
+  f 4/9/2 8/14/2 7/13/2
+  f 8/14/3 6/12/3 5/11/3
+  f 6/12/4 2/5/4 1/2/4
+  f 7/13/5 5/11/5 1/3/5
+  f 4/10/6 2/6/6 6/12/6
+  `
+);
 
 function clearBackground(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
 function updateCanvasSize(ctx) {
-  ctx.canvas.width = source.clientWidth / 2;
-  ctx.canvas.height = source.clientHeight / 2;
-
-  // left = -ctx.canvas.width / 2;
-  // right = ctx.canvas.width / 2;
-  // top = ctx.canvas.height / 2;
-  // bottom = -ctx.canvas.height / 2;
-  // aspect = ctx.canvas.width / ctx.canvas.height;
-  // near = 100;
-  // far = 1000;
-  // aF = 1 / Math.tan((fov * Math.PI) / 180 / 2);
+  ctx.canvas.width = source.clientWidth;
+  ctx.canvas.height = source.clientHeight;
 }
-
-// let left = -ctx.canvas.width / 2;
-// let right = ctx.canvas.width / 2;
-// let top = ctx.canvas.height / 2;
-// let bottom = -ctx.canvas.height / 2;
-// let aspect = ctx.canvas.width / ctx.canvas.height;
-// let near = 100;
-// let far = 1000;
-// let aF = 1 / Math.tan((fov * Math.PI) / 180 / 2);
 
 function render(ctx, dt) {
   clearBackground(ctx);
@@ -121,53 +146,6 @@ function render(ctx, dt) {
 //   ctx.lineTo(z.x, z.y);
 //   ctx.stroke();
 // }
-
-function renderCube(ctx) {
-  let worldCube = [];
-  for (let vertex of cube) {
-    worldCube.push(vertex.rotateEuler(rot.x, rot.y, rot.z).add(pos));
-  }
-
-  let screenCube = [];
-
-  for (let vertex of worldCube) {
-    if (orthView) {
-      screenCube.push(toOrthScreenSpace(vertex));
-    } else {
-      screenCube.push(toScreenSpace(vertex));
-    }
-  }
-
-  screenCube.forEach((element, index) => {
-    ctx.font = "16px Arial";
-    ctx.fillText(String(index), element.x, element.y);
-  });
-
-  ctx.beginPath();
-  ctx.strokeStyle = "rgb(255, 0, 0)";
-  ctx.moveTo(screenCube[0].x, screenCube[0].y);
-  ctx.lineTo(screenCube[1].x, screenCube[1].y);
-  ctx.lineTo(screenCube[2].x, screenCube[2].y);
-  ctx.lineTo(screenCube[3].x, screenCube[3].y);
-  ctx.lineTo(screenCube[0].x, screenCube[0].y);
-
-  ctx.moveTo(screenCube[4].x, screenCube[4].y);
-  ctx.lineTo(screenCube[5].x, screenCube[5].y);
-  ctx.lineTo(screenCube[6].x, screenCube[6].y);
-  ctx.lineTo(screenCube[7].x, screenCube[7].y);
-  ctx.lineTo(screenCube[4].x, screenCube[4].y);
-
-  ctx.moveTo(screenCube[0].x, screenCube[0].y);
-  ctx.lineTo(screenCube[4].x, screenCube[4].y);
-  ctx.moveTo(screenCube[1].x, screenCube[1].y);
-  ctx.lineTo(screenCube[5].x, screenCube[5].y);
-  ctx.moveTo(screenCube[2].x, screenCube[2].y);
-  ctx.lineTo(screenCube[6].x, screenCube[6].y);
-  ctx.moveTo(screenCube[3].x, screenCube[3].y);
-  ctx.lineTo(screenCube[7].x, screenCube[7].y);
-
-  ctx.stroke();
-}
 
 const fovSlider = document.getElementById("fovSlider");
 const fovInput = document.getElementById("fovInput");

@@ -1,4 +1,6 @@
 import { Vector3 } from "./Vector3.js";
+import { OBJFile } from "./OBJFile.js";
+import { Model } from "./Model.js";
 
 export class Camera {
   constructor(
@@ -124,5 +126,35 @@ export class Camera {
         this.renderTriangle(a, b, c);
       });
     });
+  }
+
+  readOBJ(file) {
+    let object = new OBJFile(file);
+    let model = object.parse();
+    console.log(model);
+
+    let vertices = [];
+    let faces = [];
+
+    model.models.forEach((model) => {
+      model.vertices.forEach((vertex) => {
+        vertices.push(new Vector3(vertex.x, vertex.y, vertex.z));
+      });
+
+      model.faces.forEach((face) => {
+        let a = face.vertices[0];
+        let b = face.vertices[1];
+        let c = face.vertices[2];
+        faces.push(
+          new Vector3(a.vertexIndex - 1, b.vertexIndex - 1, c.vertexIndex - 1)
+        );
+      });
+    });
+
+    console.log(vertices);
+    console.log(faces);
+    this.models.push(
+      new Model(new Vector3(0, 0, 0), new Vector3(0, 0, 0), vertices, faces, 50)
+    );
   }
 }
