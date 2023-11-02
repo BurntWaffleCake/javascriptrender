@@ -6,16 +6,21 @@ import { Camera } from "./Camera.js";
 const source = document.getElementById("source");
 const ctx = source.getContext("2d");
 
+let resolution = 1;
 let t = 0;
 function loop(time) {
   let dt = time / 1000 - t;
   t = time / 1000;
 
   if (autoRotate) {
-    modelCube.rot.x += dt * rotSpeed;
-    modelCube.rot.y += dt * rotSpeed;
-    modelCube.rot.z += dt * rotSpeed;
+    mainModel.rot.x += dt * rotSpeed;
+    mainModel.rot.y += dt * rotSpeed;
+    mainModel.rot.z += dt * rotSpeed;
   }
+
+  lookVector = camera.toCameraSpace(camera.pos.add(new Vector3(0, 0, 1)));
+  rightVector = lookVector.rotateEuler(0, -90, 0);
+  upVector = lookVector.rotateEuler(0, 0, 90);
 
   handleKeyboardInput(dt);
 
@@ -27,18 +32,30 @@ function loop(time) {
   window.requestAnimationFrame(loop);
 }
 
+let lookVector;
+let rightVector;
+let upVector;
+
 function handleKeyboardInput(dt) {
   if (wKeyDown) {
-    camera.pos.z += 100 * dt;
+    camera.pos = camera.pos.add(
+      lookVector.scale(100 * dt).mul(new Vector3(-1, 1, 1))
+    );
   }
   if (aKeyDown) {
-    camera.pos.x -= 100 * dt;
+    camera.pos = camera.pos.sub(
+      rightVector.scale(100 * dt).mul(new Vector3(-1, 1, 1))
+    );
   }
   if (sKeyDown) {
-    camera.pos.z -= 100 * dt;
+    camera.pos = camera.pos.sub(
+      lookVector.scale(100 * dt).mul(new Vector3(-1, 1, 1))
+    );
   }
   if (dKeyDown) {
-    camera.pos.x += 100 * dt;
+    camera.pos = camera.pos.add(
+      rightVector.scale(100 * dt).mul(new Vector3(-1, 1, 1))
+    );
   }
   if (qKeyDown) {
     camera.pos.y -= 100 * dt;
@@ -56,72 +73,23 @@ function init() {
 
 init();
 
-let modelCube = new Cube(new Vector3(0, 0, 0));
-let models = [];
+let mainModel = new Cube(new Vector3(0, 0, 0));
+let models = [mainModel];
 
 let camera = new Camera(ctx, new Vector3(0, 0, -500), undefined, 70, models);
-console.log(modelCube);
-camera.readOBJ(
-  `# Blender 3.3.1
-  # www.blender.org
-  mtllib cube.mtl
-  o Cube
-  v -1.000000 -1.000000 1.000000
-  v -1.000000 1.000000 1.000000
-  v -1.000000 -1.000000 -1.000000
-  v -1.000000 1.000000 -1.000000
-  v 1.000000 -1.000000 1.000000
-  v 1.000000 1.000000 1.000000
-  v 1.000000 -1.000000 -1.000000
-  v 1.000000 1.000000 -1.000000
-  vn -1.0000 -0.0000 -0.0000
-  vn -0.0000 -0.0000 -1.0000
-  vn 1.0000 -0.0000 -0.0000
-  vn -0.0000 -0.0000 1.0000
-  vn -0.0000 -1.0000 -0.0000
-  vn -0.0000 1.0000 -0.0000
-  vt 0.375000 0.000000
-  vt 0.375000 1.000000
-  vt 0.125000 0.750000
-  vt 0.625000 0.000000
-  vt 0.625000 1.000000
-  vt 0.875000 0.750000
-  vt 0.125000 0.500000
-  vt 0.375000 0.250000
-  vt 0.625000 0.250000
-  vt 0.875000 0.500000
-  vt 0.375000 0.750000
-  vt 0.625000 0.750000
-  vt 0.375000 0.500000
-  vt 0.625000 0.500000
-  s 0
-  f 2/4/1 3/8/1 1/1/1
-  f 4/9/2 7/13/2 3/8/2
-  f 8/14/3 5/11/3 7/13/3
-  f 6/12/4 1/2/4 5/11/4
-  f 7/13/5 1/3/5 3/7/5
-  f 4/10/6 6/12/6 8/14/6
-  f 2/4/1 4/9/1 3/8/1
-  f 4/9/2 8/14/2 7/13/2
-  f 8/14/3 6/12/3 5/11/3
-  f 6/12/4 2/5/4 1/2/4
-  f 7/13/5 5/11/5 1/3/5
-  f 4/10/6 2/6/6 6/12/6
-  `
-);
 
 function clearBackground(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
 function updateCanvasSize(ctx) {
-  ctx.canvas.width = source.clientWidth;
-  ctx.canvas.height = source.clientHeight;
+  ctx.canvas.width = source.clientWidth / resolution;
+  ctx.canvas.height = source.clientHeight / resolution;
 }
 
 function render(ctx, dt) {
   clearBackground(ctx);
-  camera.render();
+  camera.render(orthView);
 }
 
 // function renderWorldAxis(ctx, mag) {
@@ -270,4 +238,13 @@ document.onkeyup = function (event) {
   } else if (event.key == "e") {
     eKeyDown = false;
   }
+};
+
+const inputRender = document.getElementById("inputRender");
+const inputObject = document.getElementById("inputObject");
+
+inputRender.onclick = function () {
+  let rawText = inputObject.value;
+  camera.clearModels();
+  mainModel = camera.readOBJ(rawText);
 };

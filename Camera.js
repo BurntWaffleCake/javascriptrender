@@ -38,12 +38,16 @@ export class Camera {
   }
 
   toOrthScreenSpace(vector) {
-    let x = (2 * vector.x) / (right - left) - (right + left) / (right - left);
-    let y = (2 * vector.y) / (top - bottom) - (top + bottom) / (top - aspect);
+    let x =
+      (2 * vector.x) / (this.right - this.left) -
+      (this.right + this.left) / (this.right - this.left);
+    let y =
+      (2 * vector.y) / (this.top - this.bottom) -
+      (this.top + this.bottom) / (this.top - this.aspect);
 
     return {
-      x: x * ctx.canvas.width + ctx.canvas.width / 2,
-      y: -y * ctx.canvas.height + ctx.canvas.height / 2, //-y as coordinate system is negative
+      x: x * this.ctx.canvas.width + this.ctx.canvas.width / 2,
+      y: -y * this.ctx.canvas.height + this.ctx.canvas.height / 2, //-y as coordinate system is negative
     };
   }
 
@@ -59,14 +63,21 @@ export class Camera {
     };
   }
 
-  renderTriangle(a, b, c) {
-    let camA = this.toCameraSpace(a);
-    let camB = this.toCameraSpace(b);
-    let camC = this.toCameraSpace(c);
+  renderTriangle(a, b, c, orth) {
+    // vertices in camera space
+    let screenA;
+    let screenB;
+    let screenC;
 
-    let screenA = this.toScreenSpace(camA);
-    let screenB = this.toScreenSpace(camB);
-    let screenC = this.toScreenSpace(camC);
+    if (orth) {
+      screenA = this.toOrthScreenSpace(a);
+      screenB = this.toOrthScreenSpace(b);
+      screenC = this.toOrthScreenSpace(c);
+    } else {
+      screenA = this.toScreenSpace(a);
+      screenB = this.toScreenSpace(b);
+      screenC = this.toScreenSpace(c);
+    }
 
     let cross = new Vector3(
       screenB.x - screenA.x,
@@ -78,22 +89,19 @@ export class Camera {
       return;
     }
 
-    let mean = camA
-      .add(camB)
-      .add(camC)
+    let mean = a
+      .add(b)
+      .add(c)
       .scale(1 / 3);
 
     let surfaceNorm = b.sub(a).unit().cross(c.sub(a).unit());
-    // let surfaceNorm = camB.sub(camA).unit().cross(camC.sub(camA).unit());
 
-    // console.log(cross.z);
     let screenMean = this.toScreenSpace(mean);
     let screenNormal = this.toScreenSpace(mean.add(surfaceNorm.scale(50)));
 
     let dot = surfaceNorm.dot(new Vector3(1, 1, -1).unit()) / 2 + 0.5;
 
-    this.ctx.strokeStyle = "rgb(0,0,0)";
-    this.ctx.fillStyle =
+    let style =
       "rgb(" +
       String(255 * dot) +
       "," +
@@ -101,6 +109,8 @@ export class Camera {
       "," +
       String(255 * dot) +
       ")";
+    this.ctx.strokeStyle = style;
+    this.ctx.fillStyle = style;
     this.ctx.beginPath();
     this.ctx.moveTo(screenA.x, screenA.y);
     this.ctx.lineTo(screenB.x, screenB.y);
@@ -109,29 +119,54 @@ export class Camera {
     this.ctx.fill();
     this.ctx.stroke();
 
-    this.ctx.beginPath();
-    this.ctx.strokeStyle = "rgb(255,0,0)";
-    this.ctx.moveTo(screenMean.x, screenMean.y);
-    this.ctx.lineTo(screenNormal.x, screenNormal.y);
-    this.ctx.stroke();
+    // this.ctx.beginPath();
+    // this.ctx.strokeStyle = "rgb(255,0,0)";
+    // this.ctx.moveTo(screenMean.x, screenMean.y);
+    // this.ctx.lineTo(screenNormal.x, screenNormal.y);
+    // this.ctx.stroke();
   }
 
-  render() {
+  render(orth) {
+    this.aspect = this.ctx.canvas.width / this.ctx.canvas.height;
+
     this.models.forEach((model, index) => {
+      let worldTriangles = [];
+      let cameraTriangles = [];
+
       model.triangles.forEach((triangle) => {
         let a = model.toWorldSpace(model.vertices[triangle.x]);
         let b = model.toWorldSpace(model.vertices[triangle.y]);
         let c = model.toWorldSpace(model.vertices[triangle.z]);
-        // console.log(a, b, c);
-        this.renderTriangle(a, b, c);
+        worldTriangles.push([a, b, c]);
+      });
+
+      worldTriangles.forEach((triangle) => {
+        let camA = this.toCameraSpace(triangle[0]);
+        let camB = this.toCameraSpace(triangle[1]);
+        let camC = this.toCameraSpace(triangle[2]);
+        let minZ = Math.min(camA.z, camB.z, camC.z);
+        cameraTriangles.push([camA, camB, camC, minZ]);
+      });
+
+      cameraTriangles.sort((a, b) => {
+        return -(a[3] - b[3]);
+      });
+
+      // console.log(cameraTriangles);
+
+      cameraTriangles.forEach((triangle) => {
+        this.renderTriangle(triangle[0], triangle[1], triangle[2], orth);
       });
     });
+  }
+
+  clearModels() {
+    this.models = [];
   }
 
   readOBJ(file) {
     let object = new OBJFile(file);
     let model = object.parse();
-    console.log(model);
 
     let vertices = [];
     let faces = [];
@@ -151,10 +186,15 @@ export class Camera {
       });
     });
 
-    console.log(vertices);
-    console.log(faces);
-    this.models.push(
-      new Model(new Vector3(0, 0, 0), new Vector3(0, 0, 0), vertices, faces, 50)
+    let newModel = new Model(
+      new Vector3(0, 0, 0),
+      new Vector3(0, 0, 0),
+      vertices,
+      faces,
+      50
     );
+
+    this.models.push(newModel);
+    return newModel;
   }
 }

@@ -65,6 +65,7 @@
       }
     </style>
   </head>
+
   <body>
     <div id="settings">
       <div>
@@ -166,10 +167,14 @@
         </div>
       </div>
 
-      <div>
-        <textarea style="max-width: 100%; max-height: 10rem"></textarea>
-      </div>
+      <textarea
+        style="min-width: 100%; max-width: 100%; max-height: 15rem"
+        id="inputObject"
+      ></textarea>
+      <input type="submit" value="render" id="inputRender" />
+    </div>
     <canvas id="source"></canvas>
+
     <script type="module" src="main.js" async defer></script>
   </body>
 </html>
